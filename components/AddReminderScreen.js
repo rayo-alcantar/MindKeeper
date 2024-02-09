@@ -1,15 +1,28 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { useNavigation } from '@react-navigation/native';
 
 const AddReminderScreen = () => {
+  const navigation = useNavigation();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [notificationsCount, setNotificationsCount] = useState('');
   const [interval, setInterval] = useState('');
 
-  const saveReminder = async () => {
+  useEffect(() => {
+    const requestPermissions = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Error', 'Se requieren permisos de notificación para esta característica.');
+      }
+    };
+
+    requestPermissions();
+  }, []);
+
+  const saveReminderAndScheduleNotifications = async () => {
     if (!name.trim()) {
       Alert.alert("Error", "El nombre del recordatorio es obligatorio.");
       return;
@@ -18,15 +31,17 @@ const AddReminderScreen = () => {
     const reminder = {
       name,
       description,
-      date: new Date().toISOString(),
       notificationsCount: parseInt(notificationsCount, 10) || 0,
       interval: parseInt(interval, 10) || 0,
     };
 
     try {
-      await AsyncStorage.setItem(`reminder_${new Date().getTime()}`, JSON.stringify(reminder));
-      scheduleNotifications(reminder);
+      const id = new Date().getTime().toString();
+      await AsyncStorage.setItem(`reminder_${id}`, JSON.stringify(reminder));
+      const notificationId = await scheduleNotifications(reminder);
+      console.log(`Notification ID: ${notificationId}`);
       Alert.alert("Éxito", "Recordatorio guardado con éxito.");
+      navigation.goBack();
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Error al guardar el recordatorio.");
@@ -34,7 +49,15 @@ const AddReminderScreen = () => {
   };
 
   const scheduleNotifications = async (reminder) => {
-    for (let i = 0; i < reminder.notificationsCount; i++) {
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Prueba",
+        body: "Esto es una notificación de prueba enviada inmediatamente.",
+      },
+      trigger: null,
+    });
+
+    for (let i = 1; i <= reminder.notificationsCount; i++) {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: `Recordatorio: ${reminder.name}`,
@@ -45,6 +68,8 @@ const AddReminderScreen = () => {
         },
       });
     }
+
+    return notificationId;
   };
 
   return (
@@ -77,7 +102,7 @@ const AddReminderScreen = () => {
         keyboardType="numeric"
         value={interval}
       />
-      <Button title="Guardar Recordatorio" onPress={saveReminder} />
+      <Button title="Guardar Recordatorio" onPress={saveReminderAndScheduleNotifications} />
     </View>
   );
 };
@@ -87,11 +112,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF', // Fondo más claro
+    backgroundColor: '#FFFFFF',
     padding: 20,
   },
   input: {
-    width: '100%', // Asegura que los inputs ocupen todo el ancho disponible
+    width: '100%',
     marginBottom: 20,
     borderWidth: 1,
     borderColor: 'gray',

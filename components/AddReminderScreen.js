@@ -1,39 +1,35 @@
 ﻿import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 
 const AddReminderScreen = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState(new Date());
-  const [show, setShow] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState('');
   const [interval, setInterval] = useState('');
 
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(false);
-    setDate(currentDate);
-  };
-
   const saveReminder = async () => {
+    if (!name.trim()) {
+      Alert.alert("Error", "El nombre del recordatorio es obligatorio.");
+      return;
+    }
+
+    const reminder = {
+      name,
+      description,
+      date: new Date().toISOString(),
+      notificationsCount: parseInt(notificationsCount, 10) || 0,
+      interval: parseInt(interval, 10) || 0,
+    };
+
     try {
-      const reminder = {
-        name,
-        description,
-        date: date.toISOString(),
-        notificationsCount: parseInt(notificationsCount, 10),
-        interval: parseInt(interval, 10),
-      };
-      
-      await AsyncStorage.setItem('reminder', JSON.stringify(reminder));
+      await AsyncStorage.setItem(`reminder_${new Date().getTime()}`, JSON.stringify(reminder));
       scheduleNotifications(reminder);
-      Alert.alert("Recordatorio guardado con éxito");
+      Alert.alert("Éxito", "Recordatorio guardado con éxito.");
     } catch (error) {
-      console.log(error);
-      Alert.alert("Error al guardar el recordatorio");
+      console.error(error);
+      Alert.alert("Error", "Error al guardar el recordatorio.");
     }
   };
 
@@ -42,10 +38,10 @@ const AddReminderScreen = () => {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: `Recordatorio: ${reminder.name}`,
-          body: reminder.description,
+          body: reminder.description || "Sin descripción",
         },
         trigger: {
-          date: new Date(Date.now() + i * reminder.interval * 60000), // Configura el intervalo en minutos
+          seconds: i * reminder.interval * 60,
         },
       });
     }
@@ -67,17 +63,6 @@ const AddReminderScreen = () => {
         numberOfLines={4}
         value={description}
       />
-      <Button title="Seleccionar Fecha y Hora" onPress={() => setShow(true)} />
-      {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="datetime"
-          is24Hour={true}
-          display="default"
-          onChange={onChange}
-        />
-      )}
       <TextInput
         style={styles.input}
         onChangeText={setNotificationsCount}
@@ -101,9 +86,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF', // Fondo más claro
     padding: 20,
   },
   input: {
+    width: '100%', // Asegura que los inputs ocupen todo el ancho disponible
     marginBottom: 20,
     borderWidth: 1,
     borderColor: 'gray',

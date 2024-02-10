@@ -1,4 +1,6 @@
 import 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -6,12 +8,14 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as Notifications from 'expo-notifications';
 import MainScreen from './components/MainScreen';
 import AddReminderScreen from './components/AddReminderScreen';
+import ManageRemindersScreen from './components/ManageRemindersScreen';
 
 const Stack = createStackNavigator();
 
 function App() {
   useEffect(() => {
     registerForPushNotificationsAsync();
+    //AsyncStorage.clear(); //borramos a la verga lo que tenga.
   }, []);
 
   async function registerForPushNotificationsAsync() {
@@ -32,7 +36,10 @@ function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Main">
         <Stack.Screen name="Main" component={MainScreen} options={{ title: 'Inicio' }} />
-        <Stack.Screen name="CrearRecordatorio" component={AddReminderScreen} options={{ title: 'Añadir Recordatorio' }} />
+        <Stack.Screen name="CrearRecordatorio" component={AddReminderScreen} options={{ title: 'Crear Recordatorio' }} />
+        
+        <Stack.Screen name="GestionarRecordatorios" component={ManageRemindersScreen} options={{ title: 'Gestionar Recordatorios' }} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

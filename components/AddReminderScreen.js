@@ -1,8 +1,10 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useNavigation } from '@react-navigation/native';
+import { v4 as uuidv4 } from 'uuid';
 
 const AddReminderScreen = () => {
   const navigation = useNavigation();
@@ -18,7 +20,6 @@ const AddReminderScreen = () => {
         Alert.alert('Error', 'Se requieren permisos de notificación para esta característica.');
       }
     };
-
     requestPermissions();
   }, []);
 
@@ -29,6 +30,7 @@ const AddReminderScreen = () => {
     }
 
     const reminder = {
+      id: uuidv4(),
       name,
       description,
       notificationsCount: parseInt(notificationsCount, 10) || 0,
@@ -36,10 +38,7 @@ const AddReminderScreen = () => {
     };
 
     try {
-      const id = new Date().getTime().toString();
-      await AsyncStorage.setItem(`reminder_${id}`, JSON.stringify(reminder));
-      const notificationId = await scheduleNotifications(reminder);
-      console.log(`Notification ID: ${notificationId}`);
+      await AsyncStorage.setItem(`reminder_${reminder.id}`, JSON.stringify(reminder));
       Alert.alert("Éxito", "Recordatorio guardado con éxito.");
       navigation.goBack();
     } catch (error) {
@@ -48,60 +47,12 @@ const AddReminderScreen = () => {
     }
   };
 
-  const scheduleNotifications = async (reminder) => {
-    const notificationId = await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Prueba",
-        body: "Esto es una notificación de prueba enviada inmediatamente.",
-      },
-      trigger: null,
-    });
-
-    for (let i = 1; i <= reminder.notificationsCount; i++) {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: `Recordatorio: ${reminder.name}`,
-          body: reminder.description || "Sin descripción",
-        },
-        trigger: {
-          seconds: i * reminder.interval * 60,
-        },
-      });
-    }
-
-    return notificationId;
-  };
-
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        onChangeText={setName}
-        placeholder="Nombre del Recordatorio"
-        value={name}
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setDescription}
-        placeholder="Descripción (Opcional)"
-        multiline
-        numberOfLines={4}
-        value={description}
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setNotificationsCount}
-        placeholder="Número de notificaciones"
-        keyboardType="numeric"
-        value={notificationsCount}
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setInterval}
-        placeholder="Intervalo entre notificaciones (minutos)"
-        keyboardType="numeric"
-        value={interval}
-      />
+      <TextInput style={styles.input} onChangeText={setName} placeholder="Nombre del Recordatorio" value={name} />
+      <TextInput style={styles.input} onChangeText={setDescription} placeholder="Descripción (Opcional)" multiline numberOfLines={4} value={description} />
+      <TextInput style={styles.input} onChangeText={setNotificationsCount} placeholder="Número de notificaciones" keyboardType="numeric" value={notificationsCount} />
+      <TextInput style={styles.input} onChangeText={setInterval} placeholder="Intervalo entre notificaciones (minutos)" keyboardType="numeric" value={interval} />
       <Button title="Guardar Recordatorio" onPress={saveReminderAndScheduleNotifications} />
     </View>
   );

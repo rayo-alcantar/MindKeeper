@@ -1,4 +1,6 @@
+import 'react-native-get-random-values';
 import 'react-native-gesture-handler';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 

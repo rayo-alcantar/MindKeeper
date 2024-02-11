@@ -1,6 +1,6 @@
 ﻿// MainScreen.js
 import React from 'react';
-import { StyleSheet, View, Text, Pressable, ScrollView, Linking } from 'react-native';
+import { StyleSheet, View, Text, Pressable, ScrollView, Linking, Alert } from 'react-native';
 
 const MainScreen = ({ navigation }) => {
   return (
@@ -48,6 +48,17 @@ const MainScreen = ({ navigation }) => {
         accessibilityRole="button"
       >
         <Text style={styles.buttonText}>Ajustes</Text>
+      </Pressable>
+      <Pressable 
+        style={styles.button} 
+        onPress={() => Alert.alert(
+          'Acerca de',
+          'Esta es una aplicación beta; por favor, ten paciencia. Cualquier duda, aclaración o error, reporta a Ángel Alcántar. rayoalcantar@gmail.com'
+        )}
+        accessibilityLabel="Acerca de"
+        accessibilityRole="button"
+      >
+        <Text style={styles.buttonText}>Acerca de</Text>
       </Pressable>
     </ScrollView>
   );

@@ -37,7 +37,7 @@ const ManageRemindersScreen = () => {
     setName(reminder.name);
     setDescription(reminder.description);
     setNotificationsCount(reminder.notificationsCount.toString());
-    setInterval(reminder.interval.toString());
+    setInterval((reminder.interval / 60).toString());
     setEditMode(true);
   };
 
@@ -55,7 +55,7 @@ const ManageRemindersScreen = () => {
       name,
       description,
       notificationsCount: parseInt(notificationsCount, 10),
-      interval: parseInt(interval, 10),
+      interval: parseInt(interval, 10) * 60,
       notificationIds: [] // Preparar para nuevos IDs de notificación
     };
     const newNotificationIds = await scheduleNotifications(updatedReminder);

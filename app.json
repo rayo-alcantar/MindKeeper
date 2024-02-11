@@ -19,7 +19,7 @@
       "bundleIdentifier": "com.Rayoscompany.MindKeeper"
     },
     "android": {
-      "package": "com.tucompañia.MindKeeper",
+      "package": "com.Rayoscompany.MindKeeper",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -28,6 +28,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5e480799-40df-4b68-b521-25d50ea80b30"
+      }
     }
   }
 }

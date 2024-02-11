@@ -40,6 +40,10 @@ const AddReminderScreen = () => {
       Alert.alert("Error", "Por favor, elige un intervalo o introduce uno personalizado.");
       return;
     }
+    if (!notificationsCount.trim() || parseInt(notificationsCount, 10) <= 0) {
+      Alert.alert("Error", "El número de notificaciones debe ser mayor que 0.");
+      return;
+    }
     const reminderInterval = selectedInterval ? parseInt(selectedInterval, 10) * 60 : parseInt(interval, 10) * 60;
     let reminder = {
       id: uuidv4(),

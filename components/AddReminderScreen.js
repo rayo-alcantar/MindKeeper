@@ -19,12 +19,26 @@ const AddReminderScreen = () => {
   useEffect(() => {
     const requestPermissions = async () => {
       const { status } = await Notifications.requestPermissionsAsync();
-      
+
+        
       if (status !== 'granted') {
         console.log('No se tienen permisos para enviar notificaciones');
         Alert.alert('Error', 'Se requieren permisos de notificación para esta característica.');
-      }
-    };
+      }else{
+            // Solo para propósitos de prueba
+            async function testNotification() {
+              await Notifications.scheduleNotificationAsync({
+                content: {
+                  title: "Test Notificación",
+                  body: "Esto es una prueba.",
+                },
+                trigger: { seconds: 10 }, // Cambia a 10 segundos para la prueba
+              });
+            }
+    
+            testNotification();
+          }
+        };
 
     requestPermissions();
   }, []);

@@ -58,6 +58,8 @@ const ManageRemindersScreen = () => {
       interval: parseInt(interval, 10),
       notificationIds: [] // Preparar para nuevos IDs de notificación
     };
+    const newNotificationIds = await scheduleNotifications(updatedReminder);
+    updatedReminder.notificationIds = newNotificationIds;
     await AsyncStorage.setItem(`reminder_${updatedReminder.id}`, JSON.stringify(updatedReminder));
     // Considera cancelar solo las notificaciones específicas relacionadas con este recordatorio aquí.
     Alert.alert('Éxito', 'Recordatorio actualizado con éxito.');

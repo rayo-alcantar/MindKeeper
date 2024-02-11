@@ -4,7 +4,7 @@ import { StyleSheet, View, Text, Pressable, ScrollView, Linking, Alert } from 'r
 
 const MainScreen = ({ navigation }) => {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView accessibilityLabel="Pantalla Principal" contentContainerStyle={styles.container}>
       <Text style={styles.title}>MindKeeper</Text>
       <Pressable 
         style={styles.button} 

@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
@@ -24,21 +25,8 @@ const AddReminderScreen = () => {
       if (status !== 'granted') {
         console.log('No se tienen permisos para enviar notificaciones');
         Alert.alert('Error', 'Se requieren permisos de notificación para esta característica.');
-      }else{
-            // Solo para propósitos de prueba
-            async function testNotification() {
-              await Notifications.scheduleNotificationAsync({
-                content: {
-                  title: "Test Notificación",
-                  body: "Esto es una prueba.",
-                },
-                trigger: { seconds: 10 }, // Cambia a 10 segundos para la prueba
-              });
-            }
-    
-            testNotification();
-          }
-        };
+      }
+	  };
 
     requestPermissions();
   }, []);
@@ -82,8 +70,9 @@ const AddReminderScreen = () => {
           body: reminder.description || "Sin descripción",
         },
         trigger: {
-          seconds: i * reminder.interval * 60,
-        },
+  seconds: i * reminder.interval,
+}
+
       });
       notificationIds.push(notificationId);
     }

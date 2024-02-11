@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
@@ -11,7 +12,7 @@ const AddReminderScreen = () => {
   const [description, setDescription] = useState('');
   const [notificationsCount, setNotificationsCount] = useState('');
   const [interval, setInterval] = useState('');
-
+  const [timeUnit, setTimeUnit] = useState('minutes'); // 'minutes' o 'hours'
   useEffect(() => {
     const requestPermissions = async () => {
       const { status } = await Notifications.requestPermissionsAsync();
@@ -49,9 +50,10 @@ const AddReminderScreen = () => {
       Alert.alert("Error", "Error al guardar el recordatorio.");
     }
   };
-
   const scheduleNotifications = async (reminder) => {
     let notificationIds = [];
+    const timeMultiplier = timeUnit === 'minutes' ? 60 : 3600; // 3600 segundos en una hora
+  
     for (let i = 1; i <= reminder.notificationsCount; i++) {
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
@@ -59,7 +61,7 @@ const AddReminderScreen = () => {
           body: reminder.description || "Sin descripción",
         },
         trigger: {
-          seconds: i * reminder.interval * 60,
+          seconds: i * reminder.interval * timeMultiplier,
         },
       });
       notificationIds.push(notificationId);
@@ -90,13 +92,36 @@ const AddReminderScreen = () => {
         keyboardType="numeric"
         value={notificationsCount}
       />
-      <TextInput
-        style={styles.input}
-        onChangeText={setInterval}
-        placeholder="Intervalo entre notificaciones (minutos)"
-        keyboardType="numeric"
-        value={interval}
-      />
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+        <TextInput
+          style={[styles.input, { flex: 1, marginRight: 10 }]}
+          onChangeText={setInterval}
+          placeholder={timeUnit === 'minutes' ? "Intervalo en minutos" : "Intervalo en horas"}
+          keyboardType="numeric"
+          value={interval}
+          accessible={true}
+          accessibilityLabel="Intervalo de tiempo"
+          accessibilityHint={`Escribe el intervalo en ${timeUnit}`}
+        />
+        <View style={{ flexDirection: 'row' }}>
+          <Button
+            title="Minutos"
+            onPress={() => setTimeUnit('minutes')}
+            color={timeUnit === 'minutes' ? 'blue' : 'grey'}
+            accessible={true}
+            accessibilityLabel="Seleccionar minutos"
+            accessibilityHint="Establece el intervalo de tiempo en minutos"
+          />
+          <Button
+            title="Horas"
+            onPress={() => setTimeUnit('hours')}
+            color={timeUnit === 'hours' ? 'blue' : 'grey'}
+            accessible={true}
+            accessibilityLabel="Seleccionar horas"
+            accessibilityHint="Establece el intervalo de tiempo en horas"
+          />
+        </View>
+      </View>
       <Button title="Guardar Recordatorio" onPress={saveReminderAndScheduleNotifications} />
     </View>
   );
